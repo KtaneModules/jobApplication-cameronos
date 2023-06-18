@@ -90,6 +90,7 @@ private string GetCurrentCompanyName(int selectedJobIndex)
   private int currentNameIndex;
   private int currentAvailabilityIndex;
   private int currentPositionIndex;
+  private const float _interactionPunchIntensity = .5f;
   private List<string> selectedChoices;
 
    void Awake () {
@@ -100,6 +101,15 @@ private string GetCurrentCompanyName(int selectedJobIndex)
           object.OnInteract += delegate () { keypadPress(object); return false; };
       }
       */
+
+
+      //interaction punches
+      Buttons[0].AddInteractionPunch(_interactionPunchIntensity);
+      Buttons[1].AddInteractionPunch(_interactionPunchIntensity);
+      Buttons[2].AddInteractionPunch(_interactionPunchIntensity);
+      Buttons[3].AddInteractionPunch(_interactionPunchIntensity);
+      Buttons[4].AddInteractionPunch(_interactionPunchIntensity);
+      Buttons[5].AddInteractionPunch(_interactionPunchIntensity);
 
       //right buttons
       Buttons[0].OnInteract += delegate () { clipboardPress(1); return false; }; //name
@@ -120,7 +130,6 @@ private string GetCurrentCompanyName(int selectedJobIndex)
        currentNameIndex = UnityEngine.Random.Range(0, applicantNames.Count);
        currentAvailabilityIndex = UnityEngine.Random.Range(0, availabilityOptions.Length);
        currentPositionIndex = UnityEngine.Random.Range(0, jobOptions.Count);
-
 
        // Update the display texts with the corresponding values
        DisplayTexts[0].text = applicantNames[currentNameIndex];
@@ -168,11 +177,12 @@ private string GetCurrentCompanyName(int selectedJobIndex)
          Audio.PlaySoundAtTransform("PaperFlip", DisplayTexts[3].transform);
          break;
        case 7:
-         Debug.Log("Submitted Name: " + DisplayTexts[0].text);
-         Debug.Log("Submitted Availability: " + DisplayTexts[1].text);
-         Debug.Log("Submitted Job Position: " + DisplayTexts[2].text);
+         Debug.LogFormat("[Job Application " + "#" + ModuleId + "] Submitted name: " + DisplayTexts[0].text + ".", ModuleId);
+         Debug.LogFormat("[Job Application " + "#" + ModuleId + "] Submitted availability: " + DisplayTexts[1].text + ".", ModuleId);
+         Debug.LogFormat("[Job Application " + "#" + ModuleId + "] Submitted job: " + DisplayTexts[2].text + ".", ModuleId);
          if (selectedChoices != null && DisplayTexts[0].text == selectedChoices[0] && DisplayTexts[1].text == selectedChoices[2] && DisplayTexts[2].text == selectedChoices[1])
          {
+             Debug.LogFormat("[Job Application " + "#" + ModuleId + "] Module solved!", ModuleId);
              DisplayTexts[3].text = "SUBMITTED!";
              ModuleSolved = true;
              Solve();
@@ -206,19 +216,19 @@ private string GetCurrentCompanyName(int selectedJobIndex)
                  strikeSoundSelection = "Strike1";
                  break;
            }
+            Debug.LogFormat("[Job Application " + "#" + ModuleId + "] Strike! Defuser entered Name: " + DisplayTexts[0].text.ToString() + ", Availability: " + DisplayTexts[1].text.ToString() + ", and Job: " + DisplayTexts[2].text.ToString() + ".", ModuleId);
             StartCoroutine(StrikeFlash());
             Audio.PlaySoundAtTransform(strikeSoundSelection, DisplayTexts[3].transform);
             Strike();
          }
       break;
        default:
-         Debug.LogWarning("Invalid button index: " + buttonIndex);  // physically impossible?
+         Debug.LogFormat("[Job Application " + "#" + ModuleId + "] Invalid button index: " + buttonIndex + ".", ModuleId); // physically impossible?
          break;
      }
      SwitchCompanyName();
    }
  }
-
 
    void SwitchCompanyName() {
      string currentUpdatedCompanyName = GetCurrentCompanyName(currentPositionIndex);
@@ -379,7 +389,7 @@ private string GetCurrentCompanyName(int selectedJobIndex)
                                 break;
 
         case DayOfWeek.Sunday:
-            selectedChoices.Add(applicantNames[7]); // Matthew
+            selectedChoices.Add(applicantNames[5]); // Matthew
             selectedChoices.Add(jobOptions[5]); //Teacher of The Lord
             selectedChoices.Add(availabilityOptions[2]); // Flexible
             break;
@@ -400,9 +410,9 @@ void Start() {
   DisplayTexts[4].text = startCompanyName;
 
   //Logs
-  Debug.Log("Correct Name: " + selectedChoices[0]);
-  Debug.Log("Correct Availability: " + selectedChoices[2]);
-  Debug.Log("Correct Job Position: " + selectedChoices[1]);
+  Debug.LogFormat("[Job Application " + "#" + ModuleId + "] The correct name is: " + selectedChoices[0] + ".", ModuleId);
+  Debug.LogFormat("[Job Application " + "#" + ModuleId + "] The correct availability is: " + selectedChoices[2] + ".", ModuleId);
+  Debug.LogFormat("[Job Application " + "#" + ModuleId + "] The correct job is: " + selectedChoices[1] + ".", ModuleId);
 
   int solveSoundIndex = UnityEngine.Random.Range(1, 7); // MAKES RANDOM NUMBER FOR SOLVE SOUNDS OF ME TALKING
   switch (solveSoundIndex)
@@ -451,12 +461,10 @@ void PressNameButton(int nameIndex)
     int desiredIndex = nameIndex;
     if (desiredIndex < 0 || desiredIndex >= applicantNames.Count)
     {
-        Debug.Log("Desired name not found in selectedChoices.");
         return;
     }
 
     int numPresses = (desiredIndex - currentNameIndex + applicantNames.Count) % applicantNames.Count;
-    Debug.Log(numPresses);
 
     StartCoroutine(DelayedButtonPress(desiredIndex, numPresses));
 }
@@ -472,7 +480,6 @@ void PressNameButton(int nameIndex)
         {
             string desiredName = applicantNames[desiredIndex];
             string currentName = applicantNames[currentNameIndex];
-            Debug.Log(desiredName + " and " + currentName);
             int presses = 0;
             while (currentName != desiredName && presses < numPresses)
             {
@@ -488,12 +495,10 @@ void PressJobButton(int jobIndex)
     int desiredIndex = jobIndex;
     if (desiredIndex < 0 || desiredIndex >= jobOptions.Count)
     {
-        Debug.Log("Desired name not found in jobOptions.");
         return;
     }
 
     int numPresses = (desiredIndex - currentPositionIndex + jobOptions.Count) % jobOptions.Count;
-    Debug.Log(numPresses);
     StartCoroutine(DelayedJobButtonPress(desiredIndex, numPresses));
 }
 
@@ -508,7 +513,6 @@ void PressJobButton(int jobIndex)
         {
             string desiredJob = jobOptions[desiredIndex];
             string currentJob = applicantNames[currentPositionIndex];
-            Debug.Log(desiredJob + " and " + currentJob);
             int presses = 0;
             while (currentJob != desiredJob && presses < numPresses)
             {
@@ -593,17 +597,20 @@ IEnumerator ProcessTwitchCommand(string Command) {
 
   case "TIME PART":
     currentAvailabilityIndex = 1;
-    DisplayTexts[2].text = "PART-TIME";
+    DisplayTexts[1].text = "Part-Time";
+    Audio.PlaySoundAtTransform("PaperFlip", DisplayTexts[1].transform);
     break;
 
   case "TIME FULL":
     currentAvailabilityIndex = 1;
-    DisplayTexts[2].text = "FULL-TIME";
+    DisplayTexts[1].text = "Full-Time";
+    Audio.PlaySoundAtTransform("PaperFlip", DisplayTexts[1].transform);
     break;
 
   case "TIME FLEXIBLE":
     currentAvailabilityIndex = 2;
-    DisplayTexts[2].text = "FLEXIBLE";
+    DisplayTexts[1].text = "Flexible";
+    Audio.PlaySoundAtTransform("PaperFlip", DisplayTexts[1].transform);
     break;
 
   case "SUBMIT":

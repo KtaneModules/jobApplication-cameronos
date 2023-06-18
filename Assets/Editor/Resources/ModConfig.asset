@@ -14,7 +14,7 @@ MonoBehaviour:
   id: jobApplication
   title: Job Application
   author: cameron
-  description: "Job Application 1.0\r\n\"Mad at your mother telling you to get a job?
+  description: "Job Application 1.2\n\"Mad at your mother telling you to get a job?
     Apply for one - virtually....\"\r\n\r\nSelect the correct name, availability,
     and job a person will apply for based on IRL time and edgework.\r\nReport bugs
     to cameronos on Discord.\r\n\r\nModule ID: jobApplication\r\nCreated by, Idea:
